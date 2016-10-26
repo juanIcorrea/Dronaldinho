@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_MINIDRONE_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
@@ -18,7 +19,15 @@ import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.sdksample.R;
 import com.parrot.sdksample.drone.MiniDrone;
 
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.handshake.ServerHandshake;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class MiniDroneActivity extends AppCompatActivity {
+    private WebSocketClient mWebSocketClient;
     private static final String TAG = "MiniDroneActivity";
     private MiniDrone mMiniDrone;
 
@@ -43,7 +52,6 @@ public class MiniDroneActivity extends AppCompatActivity {
         ARDiscoveryDeviceService service = intent.getParcelableExtra(DeviceListActivity.EXTRA_DEVICE_SERVICE);
         mMiniDrone = new MiniDrone(this, service);
         mMiniDrone.addListener(mMiniDroneListener);
-
     }
 
     @Override
@@ -92,6 +100,7 @@ public class MiniDroneActivity extends AppCompatActivity {
     }
 
     private void initIHM() {
+        connectWebSocket();
 
         findViewById(R.id.emergencyBt).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -428,4 +437,61 @@ public class MiniDroneActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void connectWebSocket() {
+        Toast.makeText(getApplicationContext(), "Entro a connectWebSocket", Toast.LENGTH_LONG).show();
+        URI uri;
+        try {
+            uri = new URI("ws://192.168.1.195:8080/echo");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mWebSocketClient = new WebSocketClient(uri, new Draft_17()) {
+            @Override
+            public void onOpen(ServerHandshake serverHandshake) {
+                Log.i("Websocket", "Opened");
+                sendMessage("activar");
+            }
+
+            @Override
+            public void onMessage(String s) {
+
+                Toast.makeText(getApplicationContext(), "Recibi" + s , Toast.LENGTH_LONG).show();
+                switch (s){
+                    case("takeoff"):
+                        switch (mMiniDrone.getFlyingState()) {
+                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
+                                mMiniDrone.takeOff();
+                                break;
+                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
+                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
+                                mMiniDrone.land();
+                                break;
+                            default:
+                        }
+                        break;
+                }
+            }
+
+            @Override
+            public void onClose(int i, String s, boolean b) {
+                Log.i("Websocket", "Closed " + s);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                Log.i("Websocket", "Error " + e.getMessage());
+
+            }
+        };
+        mWebSocketClient.connect();
+    }
+
+    public void sendMessage(String msj) {
+        mWebSocketClient.send(msj);
+    }
+
+
 }
