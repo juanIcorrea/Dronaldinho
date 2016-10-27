@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.parrot.arsdk.arcommands.ARCOMMANDS_MINIDRONE_MEDIARECORDEVENT_PICTUREEVENTCHANGED_ERROR_ENUM;
 import com.parrot.arsdk.arcommands.ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_ENUM;
@@ -18,16 +17,17 @@ import com.parrot.arsdk.arcontroller.ARCONTROLLER_DEVICE_STATE_ENUM;
 import com.parrot.arsdk.ardiscovery.ARDiscoveryDeviceService;
 import com.parrot.sdksample.R;
 import com.parrot.sdksample.drone.MiniDrone;
+import com.parrot.sdksample.socket.SocketServer;
 
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
-import org.java_websocket.handshake.ServerHandshake;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class MiniDroneActivity extends AppCompatActivity {
-    private WebSocketClient mWebSocketClient;
     private static final String TAG = "MiniDroneActivity";
     private MiniDrone mMiniDrone;
 
@@ -41,6 +41,10 @@ public class MiniDroneActivity extends AppCompatActivity {
     private int mNbMaxDownload;
     private int mCurrentDownloadIndex;
 
+    private static final int SERVER_PORT = 8080;
+    SocketServer mServer;
+    TextView infoip;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +52,13 @@ public class MiniDroneActivity extends AppCompatActivity {
 
         initIHM();
 
+        infoip = (TextView) findViewById(R.id.infoip);
+
         Intent intent = getIntent();
         ARDiscoveryDeviceService service = intent.getParcelableExtra(DeviceListActivity.EXTRA_DEVICE_SERVICE);
         mMiniDrone = new MiniDrone(this, service);
         mMiniDrone.addListener(mMiniDroneListener);
+        startServer();
     }
 
     @Override
@@ -99,8 +106,8 @@ public class MiniDroneActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+
     private void initIHM() {
-        connectWebSocket();
 
         findViewById(R.id.emergencyBt).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -436,62 +443,47 @@ public class MiniDroneActivity extends AppCompatActivity {
                 mDownloadProgressDialog = null;
             }
         }
+
+
     };
 
-    private void connectWebSocket() {
-        Toast.makeText(getApplicationContext(), "Entro a connectWebSocket", Toast.LENGTH_LONG).show();
-        URI uri;
-        try {
-            uri = new URI("ws://192.168.1.195:8080/echo");
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+    private void startServer() {
+        InetAddress inetAddress = getInetAddress();
+        if (inetAddress == null) {
+            Log.e(TAG, "Unable to lookup IP address");
             return;
+        }else {
+            String dir = "Server running on: "+ inetAddress.toString().replace('/', ' ') + ":8080";
+            infoip.setText(dir);
         }
 
-        mWebSocketClient = new WebSocketClient(uri, new Draft_17()) {
-            @Override
-            public void onOpen(ServerHandshake serverHandshake) {
-                Log.i("Websocket", "Opened");
-                sendMessage("activar");
-            }
 
-            @Override
-            public void onMessage(String s) {
+        mServer = new SocketServer(new InetSocketAddress(inetAddress.getHostAddress(), SERVER_PORT), mMiniDrone);
+        mServer.start();
+    }
 
-                Toast.makeText(getApplicationContext(), "Recibi" + s , Toast.LENGTH_LONG).show();
-                switch (s){
-                    case("takeoff"):
-                        switch (mMiniDrone.getFlyingState()) {
-                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_LANDED:
-                                mMiniDrone.takeOff();
-                                break;
-                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_FLYING:
-                            case ARCOMMANDS_MINIDRONE_PILOTINGSTATE_FLYINGSTATECHANGED_STATE_HOVERING:
-                                mMiniDrone.land();
-                                break;
-                            default:
-                        }
-                        break;
+    private static InetAddress getInetAddress() {
+        try {
+            for (Enumeration en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface networkInterface = (NetworkInterface) en.nextElement();
+
+                for (Enumeration enumIpAddr = networkInterface.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = (InetAddress) enumIpAddr.nextElement();
+
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        return inetAddress;
+                    }
                 }
             }
+        } catch (SocketException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Error getting the network interface information");
+        }
 
-            @Override
-            public void onClose(int i, String s, boolean b) {
-                Log.i("Websocket", "Closed " + s);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                Log.i("Websocket", "Error " + e.getMessage());
-
-            }
-        };
-        mWebSocketClient.connect();
+        return null;
     }
 
-    public void sendMessage(String msj) {
-        mWebSocketClient.send(msj);
-    }
+
 
 
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 public class DeviceListActivity extends AppCompatActivity {
+
     public static final String EXTRA_DEVICE_SERVICE = "EXTRA_DEVICE_SERVICE";
 
     private static final String TAG = "DeviceListActivity";
@@ -239,5 +240,7 @@ public class DeviceListActivity extends AppCompatActivity {
             return rowView;
         }
     };
+
+
 
 }
