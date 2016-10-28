@@ -2,6 +2,8 @@ package com.parrot.sdksample.socket;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.CountDownTimer;
+import android.os.Handler;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -23,12 +25,14 @@ import java.net.InetSocketAddress;
 public class SocketServer extends WebSocketServer {
     private MiniDrone mMiniDrone;
     private static final String TAG = "SocketServer";
+    private Handler handler;
 
     private WebSocket mSocket;
 
     public SocketServer(InetSocketAddress address, MiniDrone drone) {
         super(address);
         mMiniDrone = drone;
+        handler = new Handler();
     }
 
     @Override
@@ -56,6 +60,78 @@ public class SocketServer extends WebSocketServer {
                         break;
                     default:
                 }
+                break;
+            case("down"):
+                mMiniDrone.setGaz((byte) -50);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setGaz((byte) 0);
+                    }
+                }, 500);
+                break;
+            case("up"):
+                mMiniDrone.setGaz((byte) 50);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setGaz((byte) 0);
+                    }
+                }, 500);
+                break;
+            case("left"):
+                mMiniDrone.setYaw((byte) -50);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setYaw((byte) 0);
+                    }
+                }, 500);
+                break;
+            case("right"):
+                mMiniDrone.setYaw((byte) 50);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setYaw((byte) 0);
+                    }
+                }, 500);
+                break;
+            case("forward"):
+                mMiniDrone.setPitch((byte) 50);
+                mMiniDrone.setFlag((byte) 1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setPitch((byte) 0);
+                        mMiniDrone.setFlag((byte)0);
+                    }
+                }, 500);
+                break;
+            case("backward"):
+                mMiniDrone.setPitch((byte) -50);
+                mMiniDrone.setFlag((byte) 1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setPitch((byte) 0);
+                        mMiniDrone.setFlag((byte)0);
+                    }
+                }, 500);
+                break;
+            case("rollLeft"):
+                mMiniDrone.setRoll((byte) -50);
+                mMiniDrone.setFlag((byte) 1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setRoll((byte) 0);
+                        mMiniDrone.setFlag((byte)0);
+                    }
+                }, 500);
+                break;
+            case("rollRight"):
+                mMiniDrone.setRoll((byte) 50);
+                mMiniDrone.setFlag((byte) 1);
+                handler.postDelayed(new Runnable() {
+                    public void run() {
+                        mMiniDrone.setRoll((byte) 0);
+                        mMiniDrone.setFlag((byte)0);
+                    }
+                }, 500);
         }
     }
 
