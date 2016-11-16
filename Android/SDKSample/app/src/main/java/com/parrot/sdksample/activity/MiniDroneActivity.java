@@ -45,6 +45,10 @@ public class MiniDroneActivity extends AppCompatActivity {
     SocketServer mServer;
     TextView infoip;
 
+/*
+Se inicializan los controles para el drone.
+Se abre el puerto 8080 del celular para recibir los comandos a través de WebSocket.
+ */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +65,10 @@ public class MiniDroneActivity extends AppCompatActivity {
         startServer();
     }
 
+    /*
+    Se conecta el celular al drone por Bluetooth con la libreria de Parrot.
+
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -81,6 +89,9 @@ public class MiniDroneActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Se desconecta el drone del celular al presionar el botón de "atras"
+     */
     @Override
     public void onBackPressed() {
         if (mMiniDrone != null)
@@ -99,6 +110,9 @@ public class MiniDroneActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Se desconecta el drone del celular.
+     */
     @Override
     public void onDestroy()
     {
@@ -106,7 +120,9 @@ public class MiniDroneActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-
+    /*
+    Se inicializan los comportamientos de los botones para controlar al drone desde el celular.
+     */
     private void initIHM() {
 
         findViewById(R.id.emergencyBt).setOnClickListener(new View.OnClickListener() {
@@ -447,6 +463,10 @@ public class MiniDroneActivity extends AppCompatActivity {
 
     };
 
+    /*
+    Se abre el puerto 8080 del celular para que reciba comandos desde la WebApp.
+     */
+
     private void startServer() {
         InetAddress inetAddress = getInetAddress();
         if (inetAddress == null) {
@@ -461,6 +481,10 @@ public class MiniDroneActivity extends AppCompatActivity {
         mServer = new SocketServer(new InetSocketAddress(inetAddress.getHostAddress(), SERVER_PORT), mMiniDrone);
         mServer.start();
     }
+
+    /*
+    Este metodo sirve para obtener la direccón IP del celular.
+     */
 
     private static InetAddress getInetAddress() {
         try {
