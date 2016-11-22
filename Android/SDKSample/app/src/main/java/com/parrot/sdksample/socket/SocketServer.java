@@ -75,7 +75,7 @@ Recibe un WebSocket y un mensaje. El mensaje es el comando a ejecutar en el dron
 //                handler.postDelayed(new Runnable() {
 //                    public void run() {
 //                        mMiniDrone.setGaz((byte) 0);
-//                    }
+//                    }/
 //                }, 500);
                 break;
             case("left"):
