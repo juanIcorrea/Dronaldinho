@@ -64,77 +64,84 @@ Recibe un WebSocket y un mensaje. El mensaje es el comando a ejecutar en el dron
                 break;
             case("down"):
                 mMiniDrone.setGaz((byte) -50);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setGaz((byte) 0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setGaz((byte) 0);
+//                    }
+//                }, 500);
                 break;
             case("up"):
                 mMiniDrone.setGaz((byte) 50);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setGaz((byte) 0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setGaz((byte) 0);
+//                    }
+//                }, 500);
                 break;
             case("left"):
                 mMiniDrone.setYaw((byte) -50);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setYaw((byte) 0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setYaw((byte) 0);
+//                    }
+//                }, 500);
                 break;
             case("right"):
                 mMiniDrone.setYaw((byte) 50);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setYaw((byte) 0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setYaw((byte) 0);
+//                    }
+//                }, 500);
                 break;
             case("forward"):
                 mMiniDrone.setPitch((byte) 50);
                 mMiniDrone.setFlag((byte) 1);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setPitch((byte) 0);
-                        mMiniDrone.setFlag((byte)0);
-                    }
-                }, 1000);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setPitch((byte) 0);
+//                        mMiniDrone.setFlag((byte)0);
+//                    }
+//                }, 1000);
                 break;
             case("backward"):
                 mMiniDrone.setPitch((byte) -50);
                 mMiniDrone.setFlag((byte) 1);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setPitch((byte) 0);
-                        mMiniDrone.setFlag((byte)0);
-                    }
-                }, 1000);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setPitch((byte) 0);
+//                        mMiniDrone.setFlag((byte)0);
+//                    }
+//                }, 1000);
                 break;
             case("rollLeft"):
                 mMiniDrone.setRoll((byte) -50);
                 mMiniDrone.setFlag((byte) 1);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setRoll((byte) 0);
-                        mMiniDrone.setFlag((byte)0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setRoll((byte) 0);
+//                        mMiniDrone.setFlag((byte)0);
+//                    }
+//                }, 500);
                 break;
             case("rollRight"):
                 mMiniDrone.setRoll((byte) 50);
                 mMiniDrone.setFlag((byte) 1);
-                handler.postDelayed(new Runnable() {
-                    public void run() {
-                        mMiniDrone.setRoll((byte) 0);
-                        mMiniDrone.setFlag((byte)0);
-                    }
-                }, 500);
+//                handler.postDelayed(new Runnable() {
+//                    public void run() {
+//                        mMiniDrone.setRoll((byte) 0);
+//                        mMiniDrone.setFlag((byte)0);
+//                    }
+//                }, 500);
                 break;
             case ("backFlip"):
+                break;
+            case("middle"):
+                mMiniDrone.setGaz((byte) 0);
+                mMiniDrone.setYaw((byte) 0);
+                mMiniDrone.setRoll((byte) 0);
+                mMiniDrone.setFlag((byte) 0);
+                mMiniDrone.setPitch((byte) 0);
                 break;
         }
     }
